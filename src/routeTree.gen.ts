@@ -9,60 +9,369 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as CallbackRouteImport } from './routes/callback'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as ApiListUsersRouteImport } from './routes/api/list-users'
+import { Route as AuthenticatedAuthenticatedRouteImport } from './routes/_authenticated/authenticated'
+import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as AuthenticatedApplicationsIndexRouteImport } from './routes/_authenticated/applications/index'
+import { Route as AuthenticatedProjectProjectIdRouteRouteImport } from './routes/_authenticated/project/$projectId/route'
+import { Route as AuthenticatedProjectProjectIdIndexRouteImport } from './routes/_authenticated/project/$projectId/index'
+import { Route as AuthenticatedProjectProjectIdUsersRouteImport } from './routes/_authenticated/project/$projectId/users'
+import { Route as AuthenticatedProjectProjectIdTasksRouteImport } from './routes/_authenticated/project/$projectId/tasks'
+import { Route as AuthenticatedProjectProjectIdSettingsRouteImport } from './routes/_authenticated/project/$projectId/settings'
+import { Route as AuthenticatedApplicationsFormIdResponsesRouteImport } from './routes/_authenticated/applications/$formId/responses'
+import { Route as AuthenticatedApplicationsFormIdEditRouteImport } from './routes/_authenticated/applications/$formId/edit'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const CallbackRoute = CallbackRouteImport.update({
+  id: '/callback',
+  path: '/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const ApiListUsersRoute = ApiListUsersRouteImport.update({
+  id: '/api/list-users',
+  path: '/api/list-users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAuthenticatedRoute =
+  AuthenticatedAuthenticatedRouteImport.update({
+    id: '/authenticated',
+    path: '/authenticated',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedApplicationsIndexRoute =
+  AuthenticatedApplicationsIndexRouteImport.update({
+    id: '/applications/',
+    path: '/applications/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedProjectProjectIdRouteRoute =
+  AuthenticatedProjectProjectIdRouteRouteImport.update({
+    id: '/project/$projectId',
+    path: '/project/$projectId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedProjectProjectIdIndexRoute =
+  AuthenticatedProjectProjectIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedProjectProjectIdRouteRoute,
+  } as any)
+const AuthenticatedProjectProjectIdUsersRoute =
+  AuthenticatedProjectProjectIdUsersRouteImport.update({
+    id: '/users',
+    path: '/users',
+    getParentRoute: () => AuthenticatedProjectProjectIdRouteRoute,
+  } as any)
+const AuthenticatedProjectProjectIdTasksRoute =
+  AuthenticatedProjectProjectIdTasksRouteImport.update({
+    id: '/tasks',
+    path: '/tasks',
+    getParentRoute: () => AuthenticatedProjectProjectIdRouteRoute,
+  } as any)
+const AuthenticatedProjectProjectIdSettingsRoute =
+  AuthenticatedProjectProjectIdSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedProjectProjectIdRouteRoute,
+  } as any)
+const AuthenticatedApplicationsFormIdResponsesRoute =
+  AuthenticatedApplicationsFormIdResponsesRouteImport.update({
+    id: '/applications/$formId/responses',
+    path: '/applications/$formId/responses',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedApplicationsFormIdEditRoute =
+  AuthenticatedApplicationsFormIdEditRouteImport.update({
+    id: '/applications/$formId/edit',
+    path: '/applications/$formId/edit',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/callback': typeof CallbackRoute
+  '/app': typeof AuthenticatedAppRoute
+  '/authenticated': typeof AuthenticatedAuthenticatedRoute
+  '/api/list-users': typeof ApiListUsersRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/project/$projectId': typeof AuthenticatedProjectProjectIdRouteRouteWithChildren
+  '/applications': typeof AuthenticatedApplicationsIndexRoute
+  '/applications/$formId/edit': typeof AuthenticatedApplicationsFormIdEditRoute
+  '/applications/$formId/responses': typeof AuthenticatedApplicationsFormIdResponsesRoute
+  '/project/$projectId/settings': typeof AuthenticatedProjectProjectIdSettingsRoute
+  '/project/$projectId/tasks': typeof AuthenticatedProjectProjectIdTasksRoute
+  '/project/$projectId/users': typeof AuthenticatedProjectProjectIdUsersRoute
+  '/project/$projectId/': typeof AuthenticatedProjectProjectIdIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/callback': typeof CallbackRoute
+  '/app': typeof AuthenticatedAppRoute
+  '/authenticated': typeof AuthenticatedAuthenticatedRoute
+  '/api/list-users': typeof ApiListUsersRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/applications': typeof AuthenticatedApplicationsIndexRoute
+  '/applications/$formId/edit': typeof AuthenticatedApplicationsFormIdEditRoute
+  '/applications/$formId/responses': typeof AuthenticatedApplicationsFormIdResponsesRoute
+  '/project/$projectId/settings': typeof AuthenticatedProjectProjectIdSettingsRoute
+  '/project/$projectId/tasks': typeof AuthenticatedProjectProjectIdTasksRoute
+  '/project/$projectId/users': typeof AuthenticatedProjectProjectIdUsersRoute
+  '/project/$projectId': typeof AuthenticatedProjectProjectIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/callback': typeof CallbackRoute
+  '/_authenticated/app': typeof AuthenticatedAppRoute
+  '/_authenticated/authenticated': typeof AuthenticatedAuthenticatedRoute
+  '/api/list-users': typeof ApiListUsersRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/project/$projectId': typeof AuthenticatedProjectProjectIdRouteRouteWithChildren
+  '/_authenticated/applications/': typeof AuthenticatedApplicationsIndexRoute
+  '/_authenticated/applications/$formId/edit': typeof AuthenticatedApplicationsFormIdEditRoute
+  '/_authenticated/applications/$formId/responses': typeof AuthenticatedApplicationsFormIdResponsesRoute
+  '/_authenticated/project/$projectId/settings': typeof AuthenticatedProjectProjectIdSettingsRoute
+  '/_authenticated/project/$projectId/tasks': typeof AuthenticatedProjectProjectIdTasksRoute
+  '/_authenticated/project/$projectId/users': typeof AuthenticatedProjectProjectIdUsersRoute
+  '/_authenticated/project/$projectId/': typeof AuthenticatedProjectProjectIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/callback'
+    | '/app'
+    | '/authenticated'
+    | '/api/list-users'
+    | '/'
+    | '/project/$projectId'
+    | '/applications'
+    | '/applications/$formId/edit'
+    | '/applications/$formId/responses'
+    | '/project/$projectId/settings'
+    | '/project/$projectId/tasks'
+    | '/project/$projectId/users'
+    | '/project/$projectId/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/callback'
+    | '/app'
+    | '/authenticated'
+    | '/api/list-users'
+    | '/'
+    | '/applications'
+    | '/applications/$formId/edit'
+    | '/applications/$formId/responses'
+    | '/project/$projectId/settings'
+    | '/project/$projectId/tasks'
+    | '/project/$projectId/users'
+    | '/project/$projectId'
+  id:
+    | '__root__'
+    | '/_authenticated'
+    | '/callback'
+    | '/_authenticated/app'
+    | '/_authenticated/authenticated'
+    | '/api/list-users'
+    | '/_authenticated/'
+    | '/_authenticated/project/$projectId'
+    | '/_authenticated/applications/'
+    | '/_authenticated/applications/$formId/edit'
+    | '/_authenticated/applications/$formId/responses'
+    | '/_authenticated/project/$projectId/settings'
+    | '/_authenticated/project/$projectId/tasks'
+    | '/_authenticated/project/$projectId/users'
+    | '/_authenticated/project/$projectId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  CallbackRoute: typeof CallbackRoute
+  ApiListUsersRoute: typeof ApiListUsersRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/callback': {
+      id: '/callback'
+      path: '/callback'
+      fullPath: '/callback'
+      preLoaderRoute: typeof CallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/': {
+      id: '/_authenticated/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/api/list-users': {
+      id: '/api/list-users'
+      path: '/api/list-users'
+      fullPath: '/api/list-users'
+      preLoaderRoute: typeof ApiListUsersRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/authenticated': {
+      id: '/_authenticated/authenticated'
+      path: '/authenticated'
+      fullPath: '/authenticated'
+      preLoaderRoute: typeof AuthenticatedAuthenticatedRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/app': {
+      id: '/_authenticated/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AuthenticatedAppRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/applications/': {
+      id: '/_authenticated/applications/'
+      path: '/applications'
+      fullPath: '/applications'
+      preLoaderRoute: typeof AuthenticatedApplicationsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/project/$projectId': {
+      id: '/_authenticated/project/$projectId'
+      path: '/project/$projectId'
+      fullPath: '/project/$projectId'
+      preLoaderRoute: typeof AuthenticatedProjectProjectIdRouteRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/project/$projectId/': {
+      id: '/_authenticated/project/$projectId/'
+      path: '/'
+      fullPath: '/project/$projectId/'
+      preLoaderRoute: typeof AuthenticatedProjectProjectIdIndexRouteImport
+      parentRoute: typeof AuthenticatedProjectProjectIdRouteRoute
+    }
+    '/_authenticated/project/$projectId/users': {
+      id: '/_authenticated/project/$projectId/users'
+      path: '/users'
+      fullPath: '/project/$projectId/users'
+      preLoaderRoute: typeof AuthenticatedProjectProjectIdUsersRouteImport
+      parentRoute: typeof AuthenticatedProjectProjectIdRouteRoute
+    }
+    '/_authenticated/project/$projectId/tasks': {
+      id: '/_authenticated/project/$projectId/tasks'
+      path: '/tasks'
+      fullPath: '/project/$projectId/tasks'
+      preLoaderRoute: typeof AuthenticatedProjectProjectIdTasksRouteImport
+      parentRoute: typeof AuthenticatedProjectProjectIdRouteRoute
+    }
+    '/_authenticated/project/$projectId/settings': {
+      id: '/_authenticated/project/$projectId/settings'
+      path: '/settings'
+      fullPath: '/project/$projectId/settings'
+      preLoaderRoute: typeof AuthenticatedProjectProjectIdSettingsRouteImport
+      parentRoute: typeof AuthenticatedProjectProjectIdRouteRoute
+    }
+    '/_authenticated/applications/$formId/responses': {
+      id: '/_authenticated/applications/$formId/responses'
+      path: '/applications/$formId/responses'
+      fullPath: '/applications/$formId/responses'
+      preLoaderRoute: typeof AuthenticatedApplicationsFormIdResponsesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/applications/$formId/edit': {
+      id: '/_authenticated/applications/$formId/edit'
+      path: '/applications/$formId/edit'
+      fullPath: '/applications/$formId/edit'
+      preLoaderRoute: typeof AuthenticatedApplicationsFormIdEditRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
   }
 }
 
+interface AuthenticatedProjectProjectIdRouteRouteChildren {
+  AuthenticatedProjectProjectIdSettingsRoute: typeof AuthenticatedProjectProjectIdSettingsRoute
+  AuthenticatedProjectProjectIdTasksRoute: typeof AuthenticatedProjectProjectIdTasksRoute
+  AuthenticatedProjectProjectIdUsersRoute: typeof AuthenticatedProjectProjectIdUsersRoute
+  AuthenticatedProjectProjectIdIndexRoute: typeof AuthenticatedProjectProjectIdIndexRoute
+}
+
+const AuthenticatedProjectProjectIdRouteRouteChildren: AuthenticatedProjectProjectIdRouteRouteChildren =
+  {
+    AuthenticatedProjectProjectIdSettingsRoute:
+      AuthenticatedProjectProjectIdSettingsRoute,
+    AuthenticatedProjectProjectIdTasksRoute:
+      AuthenticatedProjectProjectIdTasksRoute,
+    AuthenticatedProjectProjectIdUsersRoute:
+      AuthenticatedProjectProjectIdUsersRoute,
+    AuthenticatedProjectProjectIdIndexRoute:
+      AuthenticatedProjectProjectIdIndexRoute,
+  }
+
+const AuthenticatedProjectProjectIdRouteRouteWithChildren =
+  AuthenticatedProjectProjectIdRouteRoute._addFileChildren(
+    AuthenticatedProjectProjectIdRouteRouteChildren,
+  )
+
+interface AuthenticatedRouteChildren {
+  AuthenticatedAppRoute: typeof AuthenticatedAppRoute
+  AuthenticatedAuthenticatedRoute: typeof AuthenticatedAuthenticatedRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedProjectProjectIdRouteRoute: typeof AuthenticatedProjectProjectIdRouteRouteWithChildren
+  AuthenticatedApplicationsIndexRoute: typeof AuthenticatedApplicationsIndexRoute
+  AuthenticatedApplicationsFormIdEditRoute: typeof AuthenticatedApplicationsFormIdEditRoute
+  AuthenticatedApplicationsFormIdResponsesRoute: typeof AuthenticatedApplicationsFormIdResponsesRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedAppRoute: AuthenticatedAppRoute,
+  AuthenticatedAuthenticatedRoute: AuthenticatedAuthenticatedRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedProjectProjectIdRouteRoute:
+    AuthenticatedProjectProjectIdRouteRouteWithChildren,
+  AuthenticatedApplicationsIndexRoute: AuthenticatedApplicationsIndexRoute,
+  AuthenticatedApplicationsFormIdEditRoute:
+    AuthenticatedApplicationsFormIdEditRoute,
+  AuthenticatedApplicationsFormIdResponsesRoute:
+    AuthenticatedApplicationsFormIdResponsesRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  CallbackRoute: CallbackRoute,
+  ApiListUsersRoute: ApiListUsersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 
 import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
+import type { startInstance } from './start.ts'
 declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
     router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
   }
 }

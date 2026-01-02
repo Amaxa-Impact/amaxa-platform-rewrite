@@ -14,6 +14,7 @@ import {
 } from '@workos/authkit-tanstack-react-start/client'
 import { useCallback, useMemo } from 'react'
 import { routeTree } from './routeTree.gen'
+import { ThemeProvider } from './components/theme-provider'
 
 export function getRouter() {
   const CONVEX_URL = (import.meta as any).env.VITE_CONVEX_URL!
@@ -48,7 +49,9 @@ export function getRouter() {
           client={convexQueryClient.convexClient}
           useAuth={useAuthFromWorkOS}
         >
-          {children}
+          <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+            {children}
+          </ThemeProvider>
         </ConvexProviderWithAuth>
       </AuthKitProvider>
     ),

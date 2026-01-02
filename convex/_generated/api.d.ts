@@ -11,6 +11,7 @@
 import type * as applicationFormFields from "../applicationFormFields.js";
 import type * as applicationForms from "../applicationForms.js";
 import type * as applicationResponses from "../applicationResponses.js";
+import type * as dashboard from "../dashboard.js";
 import type * as edges from "../edges.js";
 import type * as graph from "../graph.js";
 import type * as migrations from "../migrations.js";
@@ -30,6 +31,7 @@ declare const fullApi: ApiFromModules<{
   applicationFormFields: typeof applicationFormFields;
   applicationForms: typeof applicationForms;
   applicationResponses: typeof applicationResponses;
+  dashboard: typeof dashboard;
   edges: typeof edges;
   graph: typeof graph;
   migrations: typeof migrations;

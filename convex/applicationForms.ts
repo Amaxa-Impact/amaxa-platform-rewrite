@@ -50,7 +50,6 @@ export const update = mutation({
       throw new Error('Form not found');
     }
 
-    // If slug is being changed, check it's not taken
     if (args.slug && args.slug !== form.slug) {
       const existing = await ctx.db
         .query('applicationForms')

@@ -11,10 +11,12 @@
 import type * as applicationFormFields from "../applicationFormFields.js";
 import type * as applicationForms from "../applicationForms.js";
 import type * as applicationResponses from "../applicationResponses.js";
+import type * as dashboard from "../dashboard.js";
 import type * as edges from "../edges.js";
 import type * as graph from "../graph.js";
 import type * as migrations from "../migrations.js";
 import type * as permissions from "../permissions.js";
+import type * as presence from "../presence.js";
 import type * as projects from "../projects.js";
 import type * as reactFlowExample from "../reactFlowExample.js";
 import type * as tasks from "../tasks.js";
@@ -30,10 +32,12 @@ declare const fullApi: ApiFromModules<{
   applicationFormFields: typeof applicationFormFields;
   applicationForms: typeof applicationForms;
   applicationResponses: typeof applicationResponses;
+  dashboard: typeof dashboard;
   edges: typeof edges;
   graph: typeof graph;
   migrations: typeof migrations;
   permissions: typeof permissions;
+  presence: typeof presence;
   projects: typeof projects;
   reactFlowExample: typeof reactFlowExample;
   tasks: typeof tasks;

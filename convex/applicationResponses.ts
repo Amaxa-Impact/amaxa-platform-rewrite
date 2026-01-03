@@ -198,7 +198,6 @@ export const remove = mutation({
       throw new Error('Response not found');
     }
 
-    // Delete all field responses
     const fieldResponses = await ctx.db
       .query('applicationFieldResponses')
       .withIndex('by_response', (q) => q.eq('responseId', args.responseId))

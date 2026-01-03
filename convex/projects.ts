@@ -22,7 +22,6 @@ export const create = mutation({
       throw new Error('User not authenticated');
     }
 
-    // Automatically assign creator as a coach
     await ctx.db.insert('userToProject', {
       userId: userId?.tokenIdentifier,
       projectId,
@@ -136,7 +135,6 @@ export const remove = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    // Delete all tasks
     const tasks = await ctx.db
       .query('tasks')
       .withIndex('by_project', (q) => q.eq('projectId', args.projectId))
@@ -146,7 +144,6 @@ export const remove = mutation({
       await ctx.db.delete(task._id);
     }
 
-    // Delete all edges
     const edges = await ctx.db
       .query('edges')
       .withIndex('by_project', (q) => q.eq('projectId', args.projectId))
@@ -156,7 +153,6 @@ export const remove = mutation({
       await ctx.db.delete(edge._id);
     }
 
-    // Delete all user assignments
     const userAssignments = await ctx.db
       .query('userToProject')
       .withIndex('by_projectId', (q) => q.eq('projectId', args.projectId))
@@ -166,7 +162,6 @@ export const remove = mutation({
       await ctx.db.delete(assignment._id);
     }
 
-    // Delete the project
     await ctx.db.delete(args.projectId);
     return null;
   },

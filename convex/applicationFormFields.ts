@@ -25,13 +25,11 @@ export const create = mutation({
   handler: async (ctx, args) => {
     await requireSiteAdmin(ctx);
 
-    // Verify the form exists
     const form = await ctx.db.get(args.formId);
     if (!form) {
       throw new Error('Form not found');
     }
 
-    // Get the current max order for this form
     const existingFields = await ctx.db
       .query('applicationFormFields')
       .withIndex('by_form', (q) => q.eq('formId', args.formId))

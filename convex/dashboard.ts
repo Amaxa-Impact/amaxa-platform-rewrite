@@ -46,11 +46,11 @@ export const getTaskStatusCounts = query({
     const userCounts = { todo: 0, in_progress: 0, completed: 0, blocked: 0 }
 
     for (const task of tasks) {
-      const status = task.data.status ?? 'todo'
+      const status = task.status ?? 'todo'
 
       allCounts[status]++
 
-      if (task.data.assignedTo === userId) {
+      if (task.assignedTo === userId) {
         userCounts[status]++
       }
     }
@@ -59,7 +59,7 @@ export const getTaskStatusCounts = query({
       allTasks: allCounts,
       userTasks: userCounts,
       totalAll: tasks.length,
-      totalUser: tasks.filter((t) => t.data.assignedTo === userId).length,
+      totalUser: tasks.filter((t) => t.assignedTo === userId).length,
     }
   },
 })
@@ -90,15 +90,12 @@ export const listTasksPaginated = query({
         let condition = q.eq(q.field('projectId'), args.projectId)
 
         if (args.status) {
-          condition = q.and(
-            condition,
-            q.eq(q.field('data.status'), args.status),
-          )
+          condition = q.and(condition, q.eq(q.field('status'), args.status))
         }
         if (args.assignedTo) {
           condition = q.and(
             condition,
-            q.eq(q.field('data.assignedTo'), args.assignedTo),
+            q.eq(q.field('assignedTo'), args.assignedTo),
           )
         }
 
@@ -112,7 +109,7 @@ export const listTasksPaginated = query({
     let page = paginationResult.page
     if (args.searchLabel) {
       page = page.filter((task) =>
-        task.data.label.toLowerCase().includes(args.searchLabel!.toLowerCase()),
+        task.label?.toLowerCase().includes(args.searchLabel!.toLowerCase()),
       )
     }
 
@@ -120,11 +117,11 @@ export const listTasksPaginated = query({
       ...paginationResult,
       page: page.map((task) => ({
         _id: task._id,
-        label: task.data.label,
-        status: task.data.status ?? null,
-        assignedTo: task.data.assignedTo ?? null,
-        dueDate: task.data.dueDate ?? null,
-        priority: task.data.priority ?? null,
+        label: task.label,
+        status: task.status ?? null,
+        assignedTo: task.assignedTo ?? null,
+        dueDate: task.dueDate ?? null,
+        priority: task.priority ?? null,
       })),
     }
   },

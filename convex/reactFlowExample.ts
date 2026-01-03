@@ -5,8 +5,9 @@
  * on the frontend. It shows the data flow and structure expected.
  */
 
-import { mutation } from './_generated/server';
-import { v } from 'convex/values';
+import { mutation } from './_generated/server'
+import { v } from 'convex/values'
+import type { Id } from './_generated/dataModel'
 
 /**
  * Example: Sync React Flow state to Convex
@@ -33,16 +34,16 @@ export const syncReactFlowState = mutation({
               v.literal('todo'),
               v.literal('in_progress'),
               v.literal('completed'),
-              v.literal('blocked')
-            )
+              v.literal('blocked'),
+            ),
           ),
           assignedTo: v.optional(v.string()),
           dueDate: v.optional(v.number()),
           priority: v.optional(
-            v.union(v.literal('low'), v.literal('medium'), v.literal('high'))
+            v.union(v.literal('low'), v.literal('medium'), v.literal('high')),
           ),
         }),
-      })
+      }),
     ),
     edges: v.array(
       v.object({
@@ -53,7 +54,7 @@ export const syncReactFlowState = mutation({
         targetHandle: v.optional(v.string()),
         label: v.optional(v.string()),
         animated: v.optional(v.boolean()),
-      })
+      }),
     ),
   },
   returns: v.object({
@@ -62,46 +63,61 @@ export const syncReactFlowState = mutation({
   }),
   handler: async (ctx, args) => {
     // Create all nodes first
-    const nodeIds = [];
-    const oldToNewIdMap: Record<string, string> = {};
+    const nodeIds: Id<'tasks'>[] = []
+    const oldToNewIdMap: Record<string, Id<'tasks'>> = {}
 
     for (const node of args.nodes) {
-      const nodeId = await ctx.db.insert('tasks', {
+      // Create the task with core data
+      const taskId = await ctx.db.insert('tasks', {
+        projectId: args.projectId,
+        label: node.data.label,
+        description: node.data.description,
+        status: node.data.status,
+        assignedTo: node.data.assignedTo,
+        dueDate: node.data.dueDate,
+        priority: node.data.priority,
+      })
+
+      // Create the task node with visual properties
+      await ctx.db.insert('taskNodes', {
+        taskId,
         projectId: args.projectId,
         type: node.type,
         position: node.position,
-        data: node.data,
-      });
-      nodeIds.push(nodeId);
+      })
+
+      nodeIds.push(taskId)
 
       if (node.id) {
-        oldToNewIdMap[node.id] = nodeId;
+        oldToNewIdMap[node.id] = taskId
       }
     }
 
     // Create all edges, mapping old IDs to new IDs
-    const edgeIds = [];
+    const edgeIds: Id<'edges'>[] = []
     for (const edge of args.edges) {
       // Map frontend IDs to Convex IDs
-      const sourceId = oldToNewIdMap[edge.source] || edge.source;
-      const targetId = oldToNewIdMap[edge.target] || edge.target;
+      const sourceId =
+        oldToNewIdMap[edge.source] || (edge.source as Id<'tasks'>)
+      const targetId =
+        oldToNewIdMap[edge.target] || (edge.target as Id<'tasks'>)
 
       const edgeId = await ctx.db.insert('edges', {
         projectId: args.projectId,
-        source: sourceId as any,
-        target: targetId as any,
-        type: edge.type as string,
+        source: sourceId,
+        target: targetId,
+        type: edge.type,
         sourceHandle: edge.sourceHandle,
         targetHandle: edge.targetHandle,
         label: edge.label,
         animated: edge.animated,
-      });
-      edgeIds.push(edgeId);
+      })
+      edgeIds.push(edgeId)
     }
 
-    return { nodeIds, edgeIds };
+    return { nodeIds, edgeIds }
   },
-});
+})
 
 /**
  * Example: Handle React Flow node drag
@@ -119,12 +135,19 @@ export const handleNodeDrag = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.nodeId, {
-      position: args.position,
-    });
-    return null;
+    const node = await ctx.db
+      .query('taskNodes')
+      .withIndex('by_task', (q) => q.eq('taskId', args.nodeId))
+      .unique()
+
+    if (node) {
+      await ctx.db.patch(node._id, {
+        position: args.position,
+      })
+    }
+    return null
   },
-});
+})
 
 /**
  * Example: Handle React Flow edge connection
@@ -148,9 +171,9 @@ export const handleConnect = mutation({
       sourceHandle: args.sourceHandle,
       targetHandle: args.targetHandle,
       type: 'default',
-    });
+    })
   },
-});
+})
 
 /**
  * Example: Handle React Flow edge deletion
@@ -163,16 +186,16 @@ export const handleEdgeDelete = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ctx.db.delete(args.edgeId);
-    return null;
+    await ctx.db.delete(args.edgeId)
+    return null
   },
-});
+})
 
 /**
  * Example: Handle React Flow node deletion
  *
  * This mutation is called when a user deletes a node in React Flow.
- * It also deletes all connected edges.
+ * It also deletes all connected edges and the task node.
  */
 export const handleNodeDelete = mutation({
   args: {
@@ -184,22 +207,32 @@ export const handleNodeDelete = mutation({
     const outgoingEdges = await ctx.db
       .query('edges')
       .withIndex('by_source', (q) => q.eq('source', args.nodeId))
-      .collect();
+      .collect()
 
     const incomingEdges = await ctx.db
       .query('edges')
       .withIndex('by_target', (q) => q.eq('target', args.nodeId))
-      .collect();
+      .collect()
 
     for (const edge of [...outgoingEdges, ...incomingEdges]) {
-      await ctx.db.delete(edge._id);
+      await ctx.db.delete(edge._id)
     }
 
-    // Delete the node
-    await ctx.db.delete(args.nodeId);
-    return null;
+    // Delete the task node
+    const node = await ctx.db
+      .query('taskNodes')
+      .withIndex('by_task', (q) => q.eq('taskId', args.nodeId))
+      .unique()
+
+    if (node) {
+      await ctx.db.delete(node._id)
+    }
+
+    // Delete the task
+    await ctx.db.delete(args.nodeId)
+    return null
   },
-});
+})
 
 /*
  * FRONTEND INTEGRATION EXAMPLE (React/TypeScript)

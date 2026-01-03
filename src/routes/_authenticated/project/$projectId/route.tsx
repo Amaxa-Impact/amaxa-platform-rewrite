@@ -3,6 +3,7 @@ import { Id } from '@convex/_generated/dataModel';
 import { DashboardProvider } from '@/components/dashboard/context';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/dashboard/sidebar/app-sidebar';
+import { BreadcrumbHeader } from '@/components/dashboard/breadcrumb-header';
 import { convexQuery } from '@convex-dev/react-query';
 import { api } from '@convex/_generated/api';
 
@@ -26,8 +27,11 @@ function RouteComponent() {
     <DashboardProvider projectId={projectId}>
       <SidebarProvider>
         <AppSidebar projectId={projectId} />
-        <main className="flex-1">
-          <Outlet />
+        <main className="flex-1 flex flex-col">
+          <BreadcrumbHeader />
+          <div className="flex-1">
+            <Outlet />
+          </div>
         </main>
       </SidebarProvider>
     </DashboardProvider>

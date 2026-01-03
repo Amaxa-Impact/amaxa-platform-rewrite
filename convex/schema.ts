@@ -1,40 +1,62 @@
-import { defineSchema, defineTable } from 'convex/server';
-import { v } from 'convex/values';
+import { defineSchema, defineTable } from 'convex/server'
+import { v } from 'convex/values'
 
 export default defineSchema({
   siteUser: defineTable({
     userId: v.string(),
     role: v.union(v.literal('admin'), v.literal('coach')),
   }).index('by_userId', ['userId']),
+
   projects: defineTable({
     name: v.string(),
     description: v.string(),
   }),
 
+  // Core task data - business logic properties
+  // Note: Some fields are optional for backwards compatibility during migration
+  // After running migrateTasksToNewSchema, all tasks will have proper fields
   tasks: defineTable({
     projectId: v.id('projects'),
+    label: v.optional(v.string()), // Optional during migration
+    description: v.optional(v.string()),
+    status: v.optional(
+      v.union(
+        v.literal('todo'),
+        v.literal('in_progress'),
+        v.literal('completed'),
+        v.literal('blocked'),
+      ),
+    ),
+    assignedTo: v.optional(v.string()),
+    dueDate: v.optional(v.number()),
+    priority: v.optional(
+      v.union(v.literal('low'), v.literal('medium'), v.literal('high')),
+    ),
+    // Legacy fields for backwards compatibility (will be migrated to taskNodes)
+    data: v.optional(v.any()),
+    position: v.optional(v.any()),
+    type: v.optional(v.string()),
+    width: v.optional(v.number()),
+    height: v.optional(v.number()),
+    style: v.optional(v.any()),
+    selected: v.optional(v.boolean()),
+    dragging: v.optional(v.boolean()),
+  })
+    .index('by_project', ['projectId'])
+    .index('by_project_and_status', ['projectId', 'status'])
+    .index('by_project_and_assignedTo', ['projectId', 'assignedTo']),
 
+  // Flowchart node properties - visual/layout properties for ReactFlow
+  taskNodes: defineTable({
+    taskId: v.id('tasks'),
+    projectId: v.id('projects'),
     type: v.string(),
-
     position: v.object({
       x: v.number(),
       y: v.number(),
     }),
-
-    data: v.object({
-      label: v.string(),
-      description: v.optional(v.string()),
-      status: v.optional(
-        v.union(v.literal('todo'), v.literal('in_progress'), v.literal('completed'), v.literal('blocked')),
-      ),
-      assignedTo: v.optional(v.string()),
-      dueDate: v.optional(v.number()),
-      priority: v.optional(v.union(v.literal('low'), v.literal('medium'), v.literal('high'))),
-    }),
-
     width: v.optional(v.number()),
     height: v.optional(v.number()),
-
     style: v.optional(
       v.object({
         backgroundColor: v.optional(v.string()),
@@ -42,36 +64,26 @@ export default defineSchema({
         color: v.optional(v.string()),
       }),
     ),
-
-    selected: v.optional(v.boolean()),
-    dragging: v.optional(v.boolean()),
   })
-    .index('by_project', ['projectId'])
-    .index('by_project_and_assignedTo', ['projectId', 'data.assignedTo']),
+    .index('by_task', ['taskId'])
+    .index('by_project', ['projectId']),
 
+  // Edges between task nodes
   edges: defineTable({
     projectId: v.id('projects'),
-
     source: v.id('tasks'),
     target: v.id('tasks'),
-
     type: v.string(),
-
     sourceHandle: v.optional(v.string()),
     targetHandle: v.optional(v.string()),
-
     label: v.optional(v.string()),
-
     style: v.optional(
       v.object({
         stroke: v.optional(v.string()),
         strokeWidth: v.optional(v.number()),
       }),
     ),
-
     animated: v.optional(v.boolean()),
-
-    data: v.optional(v.object({})),
   })
     .index('by_project', ['projectId'])
     .index('by_source', ['source'])
@@ -123,7 +135,12 @@ export default defineSchema({
     submittedAt: v.number(),
     applicantEmail: v.string(),
     applicantName: v.string(),
-    status: v.union(v.literal('pending'), v.literal('reviewed'), v.literal('accepted'), v.literal('rejected')),
+    status: v.union(
+      v.literal('pending'),
+      v.literal('reviewed'),
+      v.literal('accepted'),
+      v.literal('rejected'),
+    ),
   })
     .index('by_form', ['formId'])
     .index('by_form_and_status', ['formId', 'status'])
@@ -134,4 +151,16 @@ export default defineSchema({
     fieldId: v.id('applicationFormFields'),
     value: v.union(v.string(), v.array(v.string())),
   }).index('by_response', ['responseId']),
-});
+
+  // Real-time presence data for collaborative features
+  presence: defineTable({
+    room: v.string(), // Room identifier (e.g., "project:123:tasks")
+    user: v.string(), // User identifier (stable per session)
+    data: v.any(), // Arbitrary presence data (cursor, name, color, etc.)
+    created: v.number(), // When user first joined
+    latestJoin: v.number(), // When user last "joined" (refreshed session)
+    updated: v.number(), // Last activity timestamp
+  })
+    .index('by_room', ['room'])
+    .index('by_room_and_user', ['room', 'user']),
+})

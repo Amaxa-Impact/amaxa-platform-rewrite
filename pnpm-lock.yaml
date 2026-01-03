@@ -11,6 +11,9 @@ importers:
       '@base-ui/react':
         specifier: ^1.0.0
         version: 1.0.0(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@convex-dev/presence':
+        specifier: ^0.3.0
+        version: 0.3.0(convex@1.31.2(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@convex-dev/react-query':
         specifier: ^0.1.0
         version: 0.1.0(@tanstack/react-query@5.90.12(react@19.2.3))(convex@1.31.2(react@19.2.3))
@@ -373,6 +376,20 @@ packages:
       react-dom: ^17 || ^18 || ^19
     peerDependenciesMeta:
       '@types/react':
+        optional: true
+
+  '@convex-dev/presence@0.3.0':
+    resolution: {integrity: sha512-adV+ao1L77u+egobyJabNwuai/0y/VgzMbqZiy+Q49JmX6fbSaiYg6FpFVACqPaq3giOfjrN2k+5mK2jTAUG0g==}
+    peerDependencies:
+      convex: ^1.24.8
+      expo-crypto: '>=14.1.0'
+      react: ~18.3.1 || ^19.0.0
+      react-dom: ~18.3.1 || ^19.0.0
+      react-native: '>=0.79.0'
+    peerDependenciesMeta:
+      expo-crypto:
+        optional: true
+      react-native:
         optional: true
 
   '@convex-dev/react-query@0.1.0':
@@ -5445,6 +5462,12 @@ snapshots:
       use-sync-external-store: 1.6.0(react@19.2.3)
     optionalDependencies:
       '@types/react': 19.2.7
+
+  '@convex-dev/presence@0.3.0(convex@1.31.2(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+    dependencies:
+      convex: 1.31.2(react@19.2.3)
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
 
   '@convex-dev/react-query@0.1.0(@tanstack/react-query@5.90.12(react@19.2.3))(convex@1.31.2(react@19.2.3))':
     dependencies:

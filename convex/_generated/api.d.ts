@@ -16,6 +16,7 @@ import type * as edges from "../edges.js";
 import type * as graph from "../graph.js";
 import type * as migrations from "../migrations.js";
 import type * as permissions from "../permissions.js";
+import type * as presence from "../presence.js";
 import type * as projects from "../projects.js";
 import type * as reactFlowExample from "../reactFlowExample.js";
 import type * as tasks from "../tasks.js";
@@ -36,6 +37,7 @@ declare const fullApi: ApiFromModules<{
   graph: typeof graph;
   migrations: typeof migrations;
   permissions: typeof permissions;
+  presence: typeof presence;
   projects: typeof projects;
   reactFlowExample: typeof reactFlowExample;
   tasks: typeof tasks;

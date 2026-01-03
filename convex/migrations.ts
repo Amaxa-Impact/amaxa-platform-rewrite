@@ -37,22 +37,18 @@ export const migrateTasksToNewSchema = mutation({
     nodesCreated: v.number(),
   }),
   handler: async (ctx) => {
-    // Get all tasks with the old schema format
     const allTasks = await ctx.db.query('tasks').collect()
     let tasksUpdated = 0
     let nodesCreated = 0
 
     for (const task of allTasks) {
-      // Check if this task has the old format (has 'data' field)
       const taskAny = task as any
 
       if (taskAny.data && typeof taskAny.data === 'object') {
-        // This is an old format task - migrate it
         const oldData = taskAny.data
         const position = taskAny.position
         const type = taskAny.type || 'task'
 
-        // Update the task with flat fields
         await ctx.db.patch(task._id, {
           label: oldData.label || 'Untitled Task',
           description: oldData.description,
@@ -62,14 +58,12 @@ export const migrateTasksToNewSchema = mutation({
           priority: oldData.priority,
         })
 
-        // Check if a taskNode already exists for this task
         const existingNode = await ctx.db
           .query('taskNodes')
           .withIndex('by_task', (q) => q.eq('taskId', task._id))
           .unique()
 
         if (!existingNode && position) {
-          // Create a taskNode entry
           await ctx.db.insert('taskNodes', {
             taskId: task._id,
             projectId: task.projectId,
@@ -106,10 +100,7 @@ export const cleanupOldTaskFields = mutation({
     for (const task of allTasks) {
       const taskAny = task as any
 
-      // Check if old fields still exist
       if (taskAny.data || taskAny.position || taskAny.type) {
-        // We can't actually remove fields in Convex, but we can replace the document
-        // For now, just count how many would need cleaning
         cleaned++
       }
     }

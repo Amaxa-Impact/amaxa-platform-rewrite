@@ -3,7 +3,6 @@ import { v } from 'convex/values'
 import type { Id } from './_generated/dataModel'
 import { requireAuth, assertUserInProject } from './permissions'
 
-// Validator for task data (matching schema)
 const taskDataValidator = v.object({
   label: v.string(),
   description: v.optional(v.string()),
@@ -22,7 +21,6 @@ const taskDataValidator = v.object({
   ),
 })
 
-// Validator for node input
 const nodeInputValidator = v.object({
   id: v.optional(v.string()),
   type: v.string(),
@@ -35,7 +33,6 @@ const nodeInputValidator = v.object({
   height: v.optional(v.number()),
 })
 
-// Validator for edge input
 const edgeInputValidator = v.object({
   source: v.string(),
   target: v.string(),
@@ -64,7 +61,6 @@ export const replaceProjectGraph = mutation({
     const userId = await requireAuth(ctx)
     await assertUserInProject(ctx, userId, args.projectId)
 
-    // 1. Delete all existing edges for the project
     const existingEdges = await ctx.db
       .query('edges')
       .withIndex('by_project', (q) => q.eq('projectId', args.projectId))
@@ -74,7 +70,6 @@ export const replaceProjectGraph = mutation({
       await ctx.db.delete(edge._id)
     }
 
-    // 2. Delete all existing task nodes for the project
     const existingTaskNodes = await ctx.db
       .query('taskNodes')
       .withIndex('by_project', (q) => q.eq('projectId', args.projectId))
@@ -84,7 +79,6 @@ export const replaceProjectGraph = mutation({
       await ctx.db.delete(node._id)
     }
 
-    // 3. Delete all existing tasks for the project
     const existingTasks = await ctx.db
       .query('tasks')
       .withIndex('by_project', (q) => q.eq('projectId', args.projectId))
@@ -94,14 +88,12 @@ export const replaceProjectGraph = mutation({
       await ctx.db.delete(task._id)
     }
 
-    // 4. Insert new tasks and nodes, build ID mapping
     const idMap: Record<string, Id<'tasks'>> = {}
     const nodeIds: Id<'tasks'>[] = []
 
     for (const node of args.nodes) {
       const type = node.type.trim() === '' ? 'task' : node.type
 
-      // Create the task
       const taskId = await ctx.db.insert('tasks', {
         projectId: args.projectId,
         label: node.data.label,
@@ -112,7 +104,6 @@ export const replaceProjectGraph = mutation({
         priority: node.data.priority,
       })
 
-      // Create the task node
       await ctx.db.insert('taskNodes', {
         taskId,
         projectId: args.projectId,
@@ -129,7 +120,6 @@ export const replaceProjectGraph = mutation({
       }
     }
 
-    // 5. Insert new edges, mapping old IDs to new Convex IDs
     const edgeIds: Id<'edges'>[] = []
 
     for (const edge of args.edges) {

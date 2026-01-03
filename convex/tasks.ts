@@ -2,7 +2,6 @@ import { query, mutation } from './_generated/server'
 import { v } from 'convex/values'
 import { requireAuth, assertUserInProject } from './permissions'
 
-// Validator for task data
 const taskDataValidator = v.object({
   label: v.optional(v.string()),
   description: v.optional(v.string()),
@@ -60,7 +59,6 @@ export const create = mutation({
     const type = args.type.trim() === '' ? 'task' : args.type
     const label = args.data.label || 'New Task'
 
-    // Create the task with core data
     const taskId = await ctx.db.insert('tasks', {
       projectId: args.projectId,
       label,
@@ -71,7 +69,6 @@ export const create = mutation({
       priority: args.data.priority,
     })
 
-    // Create the associated node with visual properties
     await ctx.db.insert('taskNodes', {
       taskId,
       projectId: args.projectId,
@@ -118,7 +115,6 @@ export const listForProject = query({
       .withIndex('by_project', (q) => q.eq('projectId', args.projectId))
       .collect()
 
-    // Build the result by joining with tasks
     const results = await Promise.all(
       taskNodes.map(async (node) => {
         const task = await ctx.db.get(node.taskId)
@@ -237,7 +233,6 @@ export const updateData = mutation({
     }
     await assertUserInProject(ctx, userId, task.projectId)
 
-    // Only update fields that are provided
     const updates: Record<string, unknown> = {}
     if (args.data.label !== undefined) updates.label = args.data.label
     if (args.data.description !== undefined)
@@ -306,7 +301,6 @@ export const remove = mutation({
     }
     await assertUserInProject(ctx, userId, task.projectId)
 
-    // Delete edges connected to this task
     const outgoingEdges = await ctx.db
       .query('edges')
       .withIndex('by_source', (q) => q.eq('source', args.taskId))
@@ -321,7 +315,6 @@ export const remove = mutation({
       await ctx.db.delete(edge._id)
     }
 
-    // Delete the task node
     const node = await ctx.db
       .query('taskNodes')
       .withIndex('by_task', (q) => q.eq('taskId', args.taskId))
@@ -331,7 +324,6 @@ export const remove = mutation({
       await ctx.db.delete(node._id)
     }
 
-    // Delete the task
     await ctx.db.delete(args.taskId)
     return null
   },
@@ -356,7 +348,6 @@ export const batchUpdatePositions = mutation({
   handler: async (ctx, args) => {
     const userId = await requireAuth(ctx)
 
-    // Verify all tasks belong to projects the user has access to
     for (const update of args.updates) {
       const task = await ctx.db.get(update.taskId)
       if (!task) {
@@ -365,7 +356,6 @@ export const batchUpdatePositions = mutation({
       await assertUserInProject(ctx, userId, task.projectId)
     }
 
-    // Update all positions
     for (const update of args.updates) {
       const node = await ctx.db
         .query('taskNodes')

@@ -123,7 +123,6 @@ export const ComboboxTrigger = ({
   const ref = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    // Create a ResizeObserver to detect width changes
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const newWidth = (entry.target as HTMLElement).offsetWidth;
@@ -137,7 +136,6 @@ export const ComboboxTrigger = ({
       resizeObserver.observe(ref.current);
     }
 
-    // Clean up the observer when component unmounts
     return () => {
       resizeObserver.disconnect();
     };
@@ -198,9 +196,7 @@ export const ComboboxInput = ({
     defaultProp: defaultValue ?? inputValue,
     prop: controlledValue,
     onChange: (newValue) => {
-      // Sync with context state
       setInputValue(newValue);
-      // Call external onChange if provided
       controlledOnValueChange?.(newValue);
     },
   });

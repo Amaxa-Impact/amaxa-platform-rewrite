@@ -12,9 +12,6 @@ export default defineSchema({
     description: v.string(),
   }),
 
-  // Core task data - business logic properties
-  // Note: Some fields are optional for backwards compatibility during migration
-  // After running migrateTasksToNewSchema, all tasks will have proper fields
   tasks: defineTable({
     projectId: v.id('projects'),
     label: v.optional(v.string()), // Optional during migration
@@ -32,7 +29,6 @@ export default defineSchema({
     priority: v.optional(
       v.union(v.literal('low'), v.literal('medium'), v.literal('high')),
     ),
-    // Legacy fields for backwards compatibility (will be migrated to taskNodes)
     data: v.optional(v.any()),
     position: v.optional(v.any()),
     type: v.optional(v.string()),
@@ -46,7 +42,6 @@ export default defineSchema({
     .index('by_project_and_status', ['projectId', 'status'])
     .index('by_project_and_assignedTo', ['projectId', 'assignedTo']),
 
-  // Flowchart node properties - visual/layout properties for ReactFlow
   taskNodes: defineTable({
     taskId: v.id('tasks'),
     projectId: v.id('projects'),
@@ -68,7 +63,6 @@ export default defineSchema({
     .index('by_task', ['taskId'])
     .index('by_project', ['projectId']),
 
-  // Edges between task nodes
   edges: defineTable({
     projectId: v.id('projects'),
     source: v.id('tasks'),
@@ -150,16 +144,15 @@ export default defineSchema({
     responseId: v.id('applicationResponses'),
     fieldId: v.id('applicationFormFields'),
     value: v.union(v.string(), v.array(v.string())),
-  }).index('by_response', ['responseId']),
+  })    .index('by_response', ['responseId']),
 
-  // Real-time presence data for collaborative features
   presence: defineTable({
-    room: v.string(), // Room identifier (e.g., "project:123:tasks")
-    user: v.string(), // User identifier (stable per session)
-    data: v.any(), // Arbitrary presence data (cursor, name, color, etc.)
-    created: v.number(), // When user first joined
-    latestJoin: v.number(), // When user last "joined" (refreshed session)
-    updated: v.number(), // Last activity timestamp
+    room: v.string(),
+    user: v.string(),
+    data: v.any(),
+    created: v.number(),
+    latestJoin: v.number(),
+    updated: v.number(),
   })
     .index('by_room', ['room'])
     .index('by_room_and_user', ['room', 'user']),

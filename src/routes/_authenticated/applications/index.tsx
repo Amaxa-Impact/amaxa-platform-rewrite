@@ -128,7 +128,6 @@ function CreateFormDialog() {
   const createForm = useConvexMutation(api.applicationForms.create);
 
   const onSubmit = async (data: CreateFormSchema) => {
-    // Validation: title and slug required, slug format
     if (!data.title.trim() || !data.slug.trim()) {
       toast.error('Title and slug are required');
       return;

@@ -72,7 +72,6 @@ const nodeTypes: NodeTypes = {
   default: TaskNode,
 }
 
-// Default edge options for horizontal layout
 const defaultEdgeOptions = {
   type: 'smoothstep',
   markerEnd: {
@@ -82,7 +81,6 @@ const defaultEdgeOptions = {
   },
 }
 
-// Type for cursor presence data
 type CursorPresenceData = {
   x: number
   y: number
@@ -91,7 +89,6 @@ type CursorPresenceData = {
   emoji: string
 }
 
-// Get or create a stable user session ID
 function getStableUserId(): string {
   if (typeof window === 'undefined') return 'ssr'
   
@@ -106,7 +103,6 @@ function getStableUserId(): string {
   return storedId
 }
 
-// Get a stable color based on user ID
 function getUserColor(userId: string): string {
   const colors = [
     '#3b82f6', '#ef4444', '#10b981', '#f59e0b', 
@@ -116,7 +112,6 @@ function getUserColor(userId: string): string {
   return colors[hash % colors.length]
 }
 
-// Wrapper component that provides ReactFlowProvider context
 function RouteComponent() {
   return (
     <ReactFlowProvider>
@@ -125,14 +120,12 @@ function RouteComponent() {
   )
 }
 
-// Main content component that has access to ReactFlow context for coordinate conversion
 function TasksFlowContent() {
   const projectId = Route.useParams().projectId as Id<'projects'>
   const { userRole } = useDashboardContext()
   const { isAuthenticated } = useConvexAuth()
-  const { user } = useAuth() // Get authenticated user from WorkOS
+  const { user } = useAuth()
   
-  // Access ReactFlow for coordinate conversions (handles zoom/pan correctly)
   const { screenToFlowPosition, flowToScreenPosition } = useReactFlow()
 
   const { data: project } = useSuspenseQuery(
@@ -145,7 +138,6 @@ function TasksFlowContent() {
     convexQuery(api.edges.listForProject, { projectId }),
   )
 
-  // Real-time mutations
   const createTask = useConvexMutation(api.tasks.create)
   const updatePosition = useConvexMutation(api.tasks.updatePosition)
   const updateTaskData = useConvexMutation(api.tasks.updateData)
@@ -153,20 +145,16 @@ function TasksFlowContent() {
   const createEdge = useConvexMutation(api.edges.create)
   const removeEdge = useConvexMutation(api.edges.remove)
 
-  // Stable user ID - computed once and stored in ref
   const userIdRef = useRef<string | null>(null)
   if (userIdRef.current === null) {
     userIdRef.current = getStableUserId()
   }
   const userId = userIdRef.current
 
-  // Presence - use project ID as room
   const roomId = `project:${projectId}:tasks`
   const userColor = getUserColor(userId)
   
-  // Get user's display name from auth, fallback to generated name
   const userName = user?.firstName!
-  // Initial presence data
   const initialPresenceData: CursorPresenceData = useMemo(
     () => ({
       x: 0,
@@ -178,14 +166,12 @@ function TasksFlowContent() {
     [userName, userColor],
   )
 
-  // Use presence hook for real-time cursor tracking
   const [_myPresenceData, othersPresence, updatePresence] = usePresence(
     roomId,
     userId,
     initialPresenceData,
   )
 
-  // Context menu state
   const [contextMenu, setContextMenu] = useState<{
     x: number
     y: number
@@ -195,18 +181,14 @@ function TasksFlowContent() {
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
   
-  // Track viewport changes to re-render cursors when user zooms/pans
   const [viewport, setViewport] = useState<Viewport>({ x: 0, y: 0, zoom: 1 })
   useOnViewportChange({
     onChange: setViewport,
   })
 
-  // Track mouse movement for cursor presence - convert to FLOW coordinates
-  // This ensures cursor positions are independent of zoom/pan level
   const handleMouseMove = useCallback(
     (event: React.MouseEvent) => {
       if (reactFlowWrapper.current && isAuthenticated) {
-        // Convert screen position to flow position (accounts for zoom/pan)
         const flowPosition = screenToFlowPosition({
           x: event.clientX,
           y: event.clientY,
@@ -217,7 +199,6 @@ function TasksFlowContent() {
     [updatePresence, isAuthenticated, screenToFlowPosition],
   )
 
-  // Convert Convex data to ReactFlow format
   const initialNodes = useMemo(
     () => (convexNodes || []) as Node[],
     [convexNodes],
@@ -230,7 +211,6 @@ function TasksFlowContent() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
 
-  // Sync with Convex data - real-time updates from the server
   useEffect(() => {
     if (convexNodes) {
       setNodes(convexNodes as Node[])
@@ -243,14 +223,11 @@ function TasksFlowContent() {
     }
   }, [convexEdges, setEdges])
 
-  // Handle new connections - save immediately to Convex
   const onConnect = useCallback(
     async (connection: Connection) => {
       if (connection.source && connection.target) {
-        // Optimistically add edge locally
         setEdges((eds) => addEdge(connection, eds))
 
-        // Save to Convex
         await createEdge({
           projectId,
           source: connection.source as Id<'tasks'>,
@@ -264,7 +241,6 @@ function TasksFlowContent() {
     [setEdges, createEdge, projectId],
   )
 
-  // Handle node drag - save position to Convex on drag stop
   const onNodeDragStop = useCallback(
     async (_event: React.MouseEvent, node: Node) => {
       await updatePosition({
@@ -275,7 +251,6 @@ function TasksFlowContent() {
     [updatePosition],
   )
 
-  // Handle status change from node
   const handleStatusChange = useCallback(
     async (taskId: string, status: TaskNodeData['status']) => {
       await updateTaskData({
@@ -286,7 +261,6 @@ function TasksFlowContent() {
     [updateTaskData],
   )
 
-  // Handle data change from node edit
   const handleDataChange = useCallback(
     async (taskId: string, data: Partial<TaskNodeData>) => {
       await updateTaskData({
@@ -297,7 +271,6 @@ function TasksFlowContent() {
     [updateTaskData],
   )
 
-  // Add new task - use flow coordinates for placement
   const addNewTask = useCallback(
     async (position?: { x: number; y: number }) => {
       let pos: { x: number; y: number }
@@ -314,7 +287,6 @@ function TasksFlowContent() {
           pos = position
         }
       } else {
-        // Random position in flow coordinates
         pos = {
           x: Math.random() * 400 + 100,
           y: Math.random() * 300 + 100,
@@ -335,7 +307,6 @@ function TasksFlowContent() {
     [createTask, projectId, screenToFlowPosition],
   )
 
-  // Delete task
   const deleteTask = useCallback(
     async (taskId: string) => {
       await removeTask({ taskId: taskId as Id<'tasks'> })
@@ -343,7 +314,6 @@ function TasksFlowContent() {
     [removeTask],
   )
 
-  // Delete edge
   const deleteEdge = useCallback(
     async (edgeId: string) => {
       await removeEdge({ edgeId: edgeId as Id<'edges'> })
@@ -351,7 +321,6 @@ function TasksFlowContent() {
     [removeEdge],
   )
 
-  // Context menu handlers
   const handlePaneContextMenu = useCallback((event: React.MouseEvent) => {
     event.preventDefault()
     if (reactFlowWrapper.current) {
@@ -394,7 +363,6 @@ function TasksFlowContent() {
     setContextMenu(null)
   }, [])
 
-  // Build nodes with callbacks
   const nodesForRender = useMemo(
     () =>
       nodes.map((n) => ({
@@ -428,13 +396,11 @@ function TasksFlowContent() {
     
     const rect = reactFlowWrapper.current.getBoundingClientRect()
     
-    // Convert from flow coordinates to screen coordinates
     const screenPosition = flowToScreenPosition({
       x: flowX,
       y: flowY,
     })
     
-    // Offset by wrapper position to get position relative to wrapper
     return {
       x: screenPosition.x - rect.left,
       y: screenPosition.y - rect.top,
@@ -446,7 +412,6 @@ function TasksFlowContent() {
       <div className="flex items-center justify-between px-6 py-4 border-b">
         <h1 className="text-2xl font-bold">{project?.name ?? 'Project'}</h1>
         <div className="flex items-center gap-4">
-          {/* Presence indicator - shows other users in the room */}
           {othersPresence && othersPresence.length > 0 && (
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">
@@ -456,7 +421,6 @@ function TasksFlowContent() {
                 {othersPresence.slice(0, 5).map((p) => {
                   const data = p.data as CursorPresenceData
                   const name = data.name || `User ${p.user.slice(0, 4)}`
-                  // Extract initials from name (first letter of first word and first letter of last word)
                   const initials = name
                     .split(' ')
                     .filter(Boolean)
@@ -516,11 +480,9 @@ function TasksFlowContent() {
           onEdgeContextMenu={handleEdgeContextMenu}
         />
 
-        {/* Display other users' cursors in real-time - converted to screen coords */}
         {othersPresence
           ?.filter((p) => {
             const data = p.data as CursorPresenceData
-            // Filter out cursors at origin (not moved yet)
             return data.x !== 0 || data.y !== 0
           })
           .map((presence) => {
@@ -538,7 +500,6 @@ function TasksFlowContent() {
             )
           })}
 
-        {/* Custom Context Menu */}
         {contextMenu && (
           <div
             className="fixed z-50"
@@ -548,18 +509,16 @@ function TasksFlowContent() {
               open
               onOpenChange={(open) => !open && closeContextMenu()}
             >
-              <ContextMenuTrigger asChild>
+              <ContextMenuTrigger >
                 <div className="w-0 h-0" />
               </ContextMenuTrigger>
               <ContextMenuContent
                 className="w-48"
-                onPointerDownOutside={closeContextMenu}
               >
                 {contextMenu.nodeId ? (
                   <>
                     <ContextMenuItem
                       onClick={() => {
-                        // Duplicate functionality could be added
                         closeContextMenu()
                       }}
                     >

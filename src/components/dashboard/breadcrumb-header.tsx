@@ -22,13 +22,10 @@ export function BreadcrumbHeader() {
   const router = useRouterState()
   const { projectId } = useParams({ strict: false })
 
-  // Extract the current page from the pathname
-  // Pattern: /project/{projectId}/{page}
   const pathParts = router.location.pathname.split('/').filter(Boolean)
-  const projectIdFromPath = pathParts[1] // "project" is at index 0, projectId is at index 1
-  const currentPageFromPath = pathParts[2] // page name is at index 2
+  const projectIdFromPath = pathParts[1]
+  const currentPageFromPath = pathParts[2]
 
-  // If we're at /project/:projectId (no additional page), show Dashboard
   const currentPage = currentPageFromPath || ''
   const pageName = PAGE_NAMES[currentPage] || currentPage
 
@@ -40,13 +37,13 @@ export function BreadcrumbHeader() {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink asChild>
+              <BreadcrumbLink>
                 <Link to="/">Platform</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink asChild>
+              <BreadcrumbLink>
                 <Link to={`/project/${projectId || projectIdFromPath}`}>
                   {project.name || 'No Project Found'}
                 </Link>

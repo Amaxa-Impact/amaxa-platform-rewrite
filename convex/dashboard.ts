@@ -84,7 +84,6 @@ export const listTasksPaginated = query({
       .withIndex('by_project', (q) => q.eq('projectId', args.projectId))
       .order('desc')
 
-    // Apply server-side filters where possible
     if (args.status || args.assignedTo) {
       tasksQuery = tasksQuery.filter((q) => {
         let condition = q.eq(q.field('projectId'), args.projectId)
@@ -105,7 +104,6 @@ export const listTasksPaginated = query({
 
     const paginationResult = await tasksQuery.paginate(args.paginationOpts)
 
-    // Apply search filter client-side (Convex doesn't support .includes() in filters)
     let page = paginationResult.page
     if (args.searchLabel) {
       page = page.filter((task) =>

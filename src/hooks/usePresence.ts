@@ -24,16 +24,13 @@ export const usePresence = <T extends Record<string, unknown>>(
   user: string,
   initialData: T,
 ) => {
-  // Track current data locally
   const dataRef = useRef<T>(initialData)
   const lastUpdateRef = useRef<number>(0)
   const pendingUpdateRef = useRef<T | null>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   
-  // Real-time presence query - this provides live updates from Convex
   const presence = useQuery(api.presence.list, { room })
   
-  // Filter out current user and only show present users
   const othersPresence = presence
     ?.filter((p) => p.user !== user && p.present)
     .map((p) => ({
@@ -41,21 +38,16 @@ export const usePresence = <T extends Record<string, unknown>>(
       data: p.data as T,
     })) as PresenceData<T>[] | undefined
 
-  // Mutations
   const updatePresenceMutation = useMutation(api.presence.update)
   const heartbeatMutation = useMutation(api.presence.heartbeat)
 
-  // Initial presence update on mount
   useEffect(() => {
     void updatePresenceMutation({ room, user, data: initialData })
     
-    // Cleanup on unmount - could add a "leave" mutation here
     return () => {
-      // Optional: mark user as leaving
     }
   }, [room, user]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Heartbeat to keep presence alive
   useEffect(() => {
     const intervalId = setInterval(() => {
       void heartbeatMutation({ room, user })
@@ -64,10 +56,8 @@ export const usePresence = <T extends Record<string, unknown>>(
     return () => clearInterval(intervalId)
   }, [heartbeatMutation, room, user])
 
-  // Throttled update function for cursor movements
   const updateData = useCallback(
     (patch: Partial<T>) => {
-      // Merge with current data
       const newData = { ...dataRef.current, ...patch }
       dataRef.current = newData
 
@@ -75,11 +65,9 @@ export const usePresence = <T extends Record<string, unknown>>(
       const timeSinceLastUpdate = now - lastUpdateRef.current
 
       if (timeSinceLastUpdate >= CURSOR_UPDATE_THROTTLE) {
-        // Enough time has passed, update immediately
         lastUpdateRef.current = now
         void updatePresenceMutation({ room, user, data: newData })
       } else {
-        // Throttle: schedule update for later
         pendingUpdateRef.current = newData
         
         if (!timeoutRef.current) {
@@ -101,7 +89,6 @@ export const usePresence = <T extends Record<string, unknown>>(
     [room, user, updatePresenceMutation],
   )
 
-  // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
       if (timeoutRef.current) {

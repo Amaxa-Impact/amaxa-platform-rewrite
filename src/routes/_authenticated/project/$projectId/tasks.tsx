@@ -165,13 +165,7 @@ function TasksFlowContent() {
   const userColor = getUserColor(userId)
   
   // Get user's display name from auth, fallback to generated name
-  const userName = useMemo(() => {
-    if (user?.firstName || user?.lastName) {
-      return `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email || `User ${userId.slice(0, 4)}`
-    }
-    return user?.email || `User ${userId.slice(0, 4)}`
-  }, [user, userId])
-  
+  const userName = user?.firstName!
   // Initial presence data
   const initialPresenceData: CursorPresenceData = useMemo(
     () => ({
